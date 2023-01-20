@@ -1,32 +1,10 @@
 ﻿using BankAccountSimulation.Models;
 using BankAccountSimulation.Services;
-
+using BankAccountSimulation.Contracts;
 namespace BankAccountSimulation
 {
-    class Program
-    {
-        public static string ReadName()
-        {
-            string tempname;
-            Console.Write("Enter username: ");
-            tempname = Console.ReadLine();
-            return tempname;
-        }
-        public static string ReadPassword()
-        {
-            string tempname;
-            Console.Write("Enter Password: ");
-            tempname = Console.ReadLine();
-            return tempname;
-        }
-        public static double ReadBal()
-        {
-            double tempbal;
-            Console.Write("Enter balance: ");
-            tempbal = Convert.ToDouble(Console.ReadLine());
-            return tempbal;
-        }
-        
+    internal class StartUp
+    {/*
         public static void Main(string[] args)
         {
             int loginOption = 0, serviceOptionBankStaff = 0, serviceOptionUser = 0;
@@ -36,29 +14,20 @@ namespace BankAccountSimulation
             double transferringAmount, debittingAmount, credittingAmount;
             string userName = "", password = "", tempBankName;
             CentralBank centralBank=new CentralBank();
-            CentralBankServices centralBankServices=new CentralBankServices(); 
-            BankServices bankServices=new BankServices();
-            StaffOperations staffOperations= new StaffOperations();
-            AccountHolderServices accountHolderServices=new AccountHolderServices();
+            ICentralBank centralBankServices=new CentralBankServices(); 
+            IBank bankServices=new BankServices();
+            IStaff staffOperations= new StaffOperations();
+            IAccountHolder accountHolderServices=new AccountHolderServices();
+            InputReadingHelper inputReadingHelper= new InputReadingHelper();
+            PrintingAvailableBanks printingAvailableBanks=new PrintingAvailableBanks();
             int usingBankIndex;
             while (true)
             {
                 int loopBreaker = 0;
                 Console.WriteLine("Main menu");
-                for (i = 0; i < centralBank.banksArray.Count(); i++)
-                {
-                    try
-                    {
-                        Console.WriteLine((i + 1) + "." + centralBank.banksArray[i].BankName);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("No banks registered at the moment\n Create a new bank");
-                        break;
-                    }
-
-                }
-                Console.WriteLine((i + 1) + ". Create New Bank");
+                printingAvailableBanks.AvailableBanksReturn(centralBank);
+                int index = centralBank.banksArray.Count();
+                Console.WriteLine((index + 1) + ". Create New Bank");
                 try
                 {
                     bankSelectionOption = Convert.ToInt32(Console.ReadLine());
@@ -68,7 +37,7 @@ namespace BankAccountSimulation
                     Console.WriteLine("Enter a Vaild option ");
                     continue;
                 }
-                if (bankSelectionOption == i + 1)
+                if (bankSelectionOption == index + 1)
                 {
                     Console.Write("Enter Bank Name:");
                     tempBankName = Console.ReadLine();
@@ -77,7 +46,7 @@ namespace BankAccountSimulation
                     Console.WriteLine(centralBank.banksArray[centralBank.banksArray.Count() - 1].bankStaffAccountsArray[0].UserId + " " +centralBank.banksArray[centralBank.banksArray.Count() - 1].bankStaffAccountsArray[0].Password);
                     continue;
                 }
-                else if (0 < bankSelectionOption && bankSelectionOption <= i)
+                else if (0 < bankSelectionOption && bankSelectionOption <= index)
                 {
                     usingBankIndex = bankSelectionOption - 1;
                     bankName = centralBank.banksArray[usingBankIndex].BankName;
@@ -112,9 +81,8 @@ namespace BankAccountSimulation
                     if (loginOption == 1)
                     {
                         while (true)
-                        {
-                            Console.Write("Enter User name: ");
-                            userName = Console.ReadLine();
+                        { 
+                            userName = inputReadingHelper.ReadName();
                             
                             if (!bankServices.CheckForValidUserNameForUser(centralBankServices.GetBank(centralBank,bankName),userName))
                             {
@@ -128,8 +96,7 @@ namespace BankAccountSimulation
                                 }
                                 continue;
                             }
-                            Console.Write("Enter password: ");
-                            password = Console.ReadLine();
+                            password=inputReadingHelper.ReadPassword();
                             if (!bankServices.CheckForValidPasswordForUser(centralBankServices.GetBank(centralBank, bankName), userName, password))
                             {
                                 Console.WriteLine("Incorrect Password");
@@ -145,8 +112,7 @@ namespace BankAccountSimulation
                     {
                         while (true)
                         {
-                            Console.Write("Enter Staff User name: ");
-                            userName = Console.ReadLine();
+                            userName= inputReadingHelper.ReadName();
                             if (!bankServices.CheckForValidUserNameForStaff(centralBankServices.GetBank(centralBank, bankName),userName))
                             {
                                 Console.WriteLine("Enter vaild username");
@@ -155,8 +121,7 @@ namespace BankAccountSimulation
                                 if (loginSectionConfirmantation == 1) { loopBreaker = 0; break; }
                                 continue;
                             }
-                            Console.Write("Enter password: ");
-                            password = Console.ReadLine();
+                           password=inputReadingHelper.ReadPassword();
                             if (!bankServices.CheckForValidPasswordForStaff(centralBankServices.GetBank(centralBank, bankName),userName, password))
                             {
                                 Console.WriteLine("Incorrect Password");
@@ -202,9 +167,9 @@ namespace BankAccountSimulation
                         {
                             string tempName, tempPassword;
                             double tempBal = 0;
-                            tempName = ReadName();
-                            tempPassword = ReadPassword();
-                            tempBal = ReadBal();
+                            tempName = inputReadingHelper.ReadName();
+                            tempPassword = inputReadingHelper.ReadPassword();
+                            tempBal = inputReadingHelper.ReadBal();
                             
                             staffOperations.CreateUserAccount(centralBankServices.GetBank(centralBank, bankName).bankUserAccountsArray, centralBankServices.GetBank(centralBank, bankName).bankUserAccountHoldersArray,tempName, tempPassword, tempBal);
                             string txnId = "TXN" + centralBankServices.GetBank(centralBank, bankName).BankId + bankServices.GetAccount(centralBankServices.GetBank(centralBank, bankName).bankUserAccountsArray, tempName).AccountId+DateTime.Now.Ticks;
@@ -214,7 +179,7 @@ namespace BankAccountSimulation
                         else if (serviceOptionBankStaff == 2)
                         {
                             string tempName;
-                            tempName = ReadName();
+                            tempName =inputReadingHelper.ReadName();
                             Account account = bankServices.GetAccount(centralBankServices.GetBank(centralBank, bankName).bankUserAccountsArray, tempName);
                             AccountHolder accountHolder= bankServices.GetAccountHolder(centralBankServices.GetBank(centralBank, bankName).bankUserAccountHoldersArray,tempName);
                             Console.WriteLine("1.Update Account");
@@ -225,16 +190,15 @@ namespace BankAccountSimulation
                                 string updatedUserName, updatedPassword;
                                 double updatedBal;
                                 Console.WriteLine("Enter the new deatils of " + tempName);
-                                updatedUserName = ReadName();
-                                updatedPassword = ReadPassword();
-                                updatedBal = ReadBal();
+                                updatedUserName = inputReadingHelper.ReadName();
+                                updatedPassword = inputReadingHelper.ReadPassword();
+                                updatedBal = inputReadingHelper.ReadBal();
                                 staffOperations.UpdateUserAccount(account, updatedUserName, updatedPassword,updatedBal);
                                 staffOperations.UpdateUserAccountHolder(accountHolder, updatedUserName,updatedPassword, updatedBal);
                                 Console.WriteLine("Details Updated");
                             }
                             else if (updateDelteOption == 2)
                             {
-                                //BanksArray[usingBankIndex].deleteUserAccount(tempName);
                                 staffOperations.DeleteAccount(centralBankServices.GetBank(centralBank, bankName).bankUserAccountsArray, account);
                                 staffOperations.DeleteAccountHolder(centralBankServices.GetBank(centralBank, bankName).bankUserAccountHoldersArray, accountHolder);
                                 continue;
@@ -278,14 +242,14 @@ namespace BankAccountSimulation
 
                         }
                         else if (serviceOptionBankStaff == 6) {
-                            string tempUserName = ReadName();
+                            string tempUserName = inputReadingHelper.ReadName();
                             
                             staffOperations.ShowTranscationHistory(bankServices.GetAccount(centralBankServices.GetBank(centralBank, bankName).bankUserAccountsArray, tempUserName));
                             
                         } 
                         else if (serviceOptionBankStaff == 7) {
                             string tempName;
-                            tempName = ReadName();
+                            tempName = inputReadingHelper.ReadName();
                             string receiverName,receiverBankName;
                             accountHolderServices.ShowTranscationHistory(bankServices.GetAccount(centralBankServices.GetBank(centralBank, bankName).bankUserAccountsArray, tempName));
                             Console.Write("Enter the Transcationid that needs to be deleted: ");
@@ -431,5 +395,6 @@ namespace BankAccountSimulation
 
             }
         }
+    }*/
     }
 }

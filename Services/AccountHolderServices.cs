@@ -1,13 +1,10 @@
 ﻿using BankAccountSimulation.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BankAccountSimulation.Contracts;
 
 namespace BankAccountSimulation.Services
 {
-    internal class AccountHolderServices
+    internal class AccountHolderServices:IAccountHolder
     {
         public void Deposit(Account senderAccount,Account receiverAccount,double amount,string txnId,string senderBankName,string receiverBankName) {
             senderAccount.AccountBalance += amount;

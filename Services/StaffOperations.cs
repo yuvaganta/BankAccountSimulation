@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using BankAccountSimulation.Models;
-
+using BankAccountSimulation.Contracts;
 namespace BankAccountSimulation.Services
 {
-    internal class StaffOperations
+    internal class StaffOperations:IStaff
     {
         public void CreateUserAccount(List<Account> bankUserAccountsArray, List<AccountHolder> bankUserAccountHolderArray, string userName,string password,double balance)
         {
